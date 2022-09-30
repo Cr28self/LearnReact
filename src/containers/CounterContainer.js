@@ -1,12 +1,20 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import Counter from "../component/Counter";
-import {connect} from "react-redux";
+import {connect, useDispatch, useSelector} from "react-redux";
 import {decrease, increase} from "../modules/counter";
 import {bindActionCreators} from "redux";
 
-const CounterContainer = ({number, increase, decrease}) => {
+const CounterContainer = () => {
 
-    return <Counter number={number} onIncrease={increase} onDecrease={decrease}/>
+    const number = useSelector(state=> state.counter.number); //상태 조회
+    const dispatch = useDispatch();  //store의 내장 함수 dispatch를 사용 가능케 함, 컨테이너 컴포넌트에서 액션을 디스패치해야할때 이 Hook을 사용하면 됨..
+
+    const onIncrease = useCallback(()=> dispatch(increase()))
+    const onDecrease = useCallback(()=> dispatch(decrease()))
+
+
+    return <Counter number={number} onIncrease={onIncrease } onDecrease={onDecrease}/>
+    //useDispatch사용할때 useCallback으로 감싸주는 습관을 들여야 함..
 
 }
 
@@ -30,7 +38,7 @@ const CounterContainer = ({number, increase, decrease}) => {
 // action생성 함수를 넘김!!
 
 
-export default connect(
+/*export default connect(
     state => ({
         number: state.counter.number,
     }),
@@ -40,8 +48,11 @@ export default connect(
         increase,  //dispatch(increase())
         decrease
     },
-)(CounterContainer);
+)(CounterContainer);*/
 // number, increase, decrese props를 CounterContainer로 전달!!
+
+/*// bindActionCreators 는 액션함수들을 자동으로 바인딩해줍니다.
+        BaseActions: bindActionCreators(baseActions, dispatch)*/
 
 /* 컴포넌트에서 리덕스 스토어에 접근하여 원하는 상태를 받아오고, 또 액션도 디스패치해줄차례,
 *   리덕스 스토어와 연동된 컴포넌트를 "컨테이너 컴포넌트"라고 한다.
@@ -54,3 +65,12 @@ export default connect(
 *                               const makeContainer = connect( mapStateToProps, mapDispatchToProps )
 *
 *                                makeContainer( 타깃 컴포넌트 )           */
+
+//connet 대신 react-redux에서 제공해주는 Hooks를 사용 가능 ( useSelector )
+/*
+* const 결과 = useSelector( 상태 선택 함수 )  -- mapStateToProps랑 형태 동일함
+* useDispatch Hooks
+* const dispatch = useDispatch();
+*   dispatch({ type: 'INCREASE' })*/
+
+export default CounterContainer;
